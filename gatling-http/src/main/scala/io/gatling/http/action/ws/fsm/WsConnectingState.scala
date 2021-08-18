@@ -43,7 +43,11 @@ object WsConnectingState extends StrictLogging {
     val listener = new WsListener(fsm, clock)
 
     // [fl]
+<<<<<<< HEAD
     //
+=======
+    statsEngine.logRequest(session.scenario, session.groups, connectRequest.getName, clock.nowMillis, incrementCount = true)
+>>>>>>> f6d7e1f42 (Expose request name in Request so it's available in SignatureCalculator , close #4127)
     // [fl]
     logger.debug(s"Connecting to ${connectRequest.getUri}")
     val userSslContexts = SslContextSupport.sslContexts(session)
@@ -70,7 +74,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
   override def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], connectEnd: Long): NextWsState = {
     val sessionWithCookies = CookieSupport.storeCookies(session, connectRequest.getUri, cookies, connectEnd)
     val sessionWithGroupTimings =
-      logResponse(sessionWithCookies, connectActionName, connectStart, connectEnd, OK, WsConnectingState.WsConnectSuccessStatusCode, None)
+      logResponse(sessionWithCookies, connectRequest.getName, connectStart, connectEnd, OK, WsConnectingState.WsConnectSuccessStatusCode, None)
 
     connectCheckSequence match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
@@ -164,7 +168,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
     // crash
     logger.debug(s"WebSocket crashed by the server while in Connecting state", t)
     val failedSession = session.markAsFailed
-    logResponse(failedSession, connectActionName, connectStart, timestamp, KO, Some(t.rootMessage), None)
+    logResponse(failedSession, connectRequest.getName, connectStart, timestamp, KO, Some(t.rootMessage), None)
 
     val n = next match {
       case Left(nextAction) => nextAction

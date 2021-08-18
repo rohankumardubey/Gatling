@@ -36,15 +36,20 @@ class SseSetCheck(
 
   override val name: String = genName("sseSetCheck")
 
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(session: Session): Validation[Unit] =
     for {
+      reqName <- requestName(session)
       fsmName <- sseName(session)
       fsm <- fetchFsm(fsmName, session)
       resolvedCheckSequences <- SseMessageCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
       // [fl]
+<<<<<<< HEAD
       //
+=======
+      statsEngine.logRequest(session.scenario, session.groups, reqName, clock.nowMillis, incrementCount = false)
+>>>>>>> f6d7e1f42 (Expose request name in Request so it's available in SignatureCalculator , close #4127)
       // [fl]
-      fsm.onSetCheck(requestName, resolvedCheckSequences, session, next)
+      fsm.onSetCheck(reqName, resolvedCheckSequences, session, next)
     }
 }
